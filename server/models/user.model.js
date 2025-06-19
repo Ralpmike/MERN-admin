@@ -2,11 +2,11 @@ const { Schema, model } = require("mongoose");
 
 const UserSchemaModel = new Schema(
   {
-    first_name: {
+    firstName: {
       type: String,
       required: [true, "Name is required"],
     },
-    last_name: {
+    lastName: {
       type: String,
       required: [true, "Last name is required"],
     },
@@ -15,13 +15,17 @@ const UserSchemaModel = new Schema(
       required: [true, "Email is required"],
       unique: [true, "Email already exists"],
     },
-    password: {
-      type: String,
-      required: [true, "Password is required"],
-    },
     age: {
       type: Number,
       required: [true, "Age is required"],
+    },
+    location: {
+      type: String,
+      required: [true, "Location is required"],
+    },
+    nationality: {
+      type: String,
+      required: [true, "Nationality is required"],
     },
     course: {
       type: String,
@@ -33,7 +37,7 @@ const UserSchemaModel = new Schema(
         "design",
         "other",
       ],
-      default: "user",
+      default: "other",
     },
   },
   {

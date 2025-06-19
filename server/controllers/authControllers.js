@@ -6,6 +6,10 @@ const adminSignup = async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
 
+    if (!firstName || !lastName || !email || !password) {
+      return res.status(400).json({ message: "All fileds are required" });
+    }
+
     const existingAdmin = await Admin.exists({ email });
     if (existingAdmin) {
       return res.status(400).json({ message: "Email already exists" });
@@ -35,6 +39,12 @@ const adminSignin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Email and Password are required" });
+    }
+
     const existingAdmin = await Admin.findOne({ email });
 
     if (!existingAdmin) {
@@ -51,9 +61,9 @@ const adminSignin = async (req, res) => {
 
     const token = jwt.sign(
       { id: existingAdmin._id, email: existingAdmin.email },
-      process.env.JWT_SECERET,
+      process.env.JWT_SECRET,
       {
-        expiresIn: "1hr",
+        expiresIn: "1h", // *Token expiration time
       }
     );
 
