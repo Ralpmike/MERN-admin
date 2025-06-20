@@ -31,6 +31,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useState } from "react";
+import { axiosInstance } from "@/base/axios";
 
 const userSchema = z.object({
   firstName: z
@@ -119,6 +121,7 @@ const nationalityOptions = [
 ];
 
 export default function UserRegistrationForm() {
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
     defaultValues: {
@@ -136,16 +139,29 @@ export default function UserRegistrationForm() {
   });
 
   async function onSubmit(data: UserFormValues) {
-    const response = await axios.post("/api/users", data);
-    if (response.status !== 201) {
-      toast.error("Registration failed. Please try again.");
-      return;
+    setIsLoading(true);
+    try {
+      const response = await axiosInstance.post("/api/users", data);
+      if (response.status !== 201) {
+        toast.error("Registration failed. Please try again.");
+        return;
+      }
+      toast.success("Registration completed successfully!", {
+        description:
+          "Your information has been saved and we'll be in touch soon.",
+      });
+      console.log("User registration data:", data);
+      form.reset();
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(`Error: ${error.response.data.message || "Unknown error"}`);
+      } else {
+        toast.error("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
     }
-    toast.success("Registration completed successfully!", {
-      description:
-        "Your information has been saved and we'll be in touch soon.",
-    });
-    console.log("User registration data:", data);
   }
 
   return (
@@ -385,7 +401,7 @@ export default function UserRegistrationForm() {
             </div>
 
             <Button type="submit" className="w-full" size="lg">
-              Complete Registration
+              {isLoading ? "Loading..." : " Complete Registration"}
             </Button>
           </form>
         </Form>

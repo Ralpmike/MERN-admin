@@ -24,12 +24,33 @@ const getUserById = async (req, res) => {
 //* Update user by ID
 const updateUser = async (req, res) => {
   const { id } = req.params;
-  const { firstName, lastName, email, age, course, location, nationality } =
-    req.body;
+  const {
+    firstName,
+    lastName,
+    email,
+    age,
+    course,
+    location,
+    nationality,
+    city,
+    phoneNumber, // Optional field
+    state,
+  } = req.body;
   try {
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { firstName, lastName, email, age, course, location, nationality },
+      {
+        firstName,
+        lastName,
+        email,
+        age,
+        course,
+        location,
+        nationality,
+        city,
+        phoneNumber,
+        state,
+      },
       { new: true, runValidators: true }
     );
     if (!updatedUser) {
@@ -60,15 +81,29 @@ const deleteUser = async (req, res) => {
 //? Create a new user
 const createUser = async (req, res) => {
   try {
-    const { firstName, lastName, email, age, course, location, nationality } =
-      req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      age,
+      course,
+      location,
+      nationality,
+      city,
+      phoneNumber, // Optional field
+      state,
+    } = req.body;
     if (
       !firstName ||
       !lastName ||
       !email ||
       !age ||
       !location ||
-      !nationality
+      !nationality ||
+      !city ||
+      !state ||
+      !course ||
+      !phoneNumber
     ) {
       return res
         .status(400)
@@ -90,6 +125,9 @@ const createUser = async (req, res) => {
       course,
       location,
       nationality,
+      city,
+      state,
+      phoneNumber, // Optional field
     });
 
     await newUser.save();
