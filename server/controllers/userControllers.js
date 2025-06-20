@@ -70,14 +70,16 @@ const createUser = async (req, res) => {
       !location ||
       !nationality
     ) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res
+        .status(400)
+        .json({ message: "All fields are required", ok: false });
     }
 
     const existingUser = await User.exists({ email });
     if (existingUser) {
       return res
         .status(400)
-        .json({ message: "User with this email already exists" });
+        .json({ message: "User with this email already exists", ok: false });
     }
 
     const newUser = new User({
@@ -91,7 +93,9 @@ const createUser = async (req, res) => {
     });
 
     await newUser.save();
-    res.status(201).json({ newUser, message: "User created successfully" });
+    res
+      .status(201)
+      .json({ newUser, message: "User created successfully", ok: true });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

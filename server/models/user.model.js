@@ -27,6 +27,20 @@ const UserSchemaModel = new Schema(
       type: String,
       required: [true, "Nationality is required"],
     },
+    city: {
+      type: String,
+      required: [true, "City is required"],
+    },
+    state: {
+      type: String,
+      required: [true, "State is required"],
+    },
+
+    phoneNumber: {
+      type: String,
+      required: [true, "Phone number is required"],
+    },
+
     course: {
       type: String,
       enum: [
