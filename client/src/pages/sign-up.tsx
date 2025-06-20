@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 import { z } from "zod";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
@@ -23,7 +23,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { adminSignUp } from "@/services/admin.auth.services";
 
 const signUpSchema = z
   .object({
@@ -50,11 +51,13 @@ const signUpSchema = z
     path: ["confirmPassword"],
   });
 
-type SignUpFormValues = z.infer<typeof signUpSchema>;
+export type SignUpFormValues = z.infer<typeof signUpSchema>;
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
@@ -68,10 +71,19 @@ export default function SignUpForm() {
     },
   });
 
-  function onSubmit(data: SignUpFormValues) {
-    toast.success("Account created successfully!", {
-      description: `Welcome ${data.firstName}! Please check your email to verify your account.`,
-    });
+  async function onSubmit(data: SignUpFormValues) {
+    setIsLoading(true);
+    try {
+      await adminSignUp(data);
+      form.reset();
+      setIsLoading(false);
+      navigate("/signin"); // Redirect to sign-in page after successful sign-up
+    } catch {
+      setIsLoading(false);
+    }
+    // toast.success("Account created successfully!", {
+    //   description: `Welcome ${data.firstName}! Please check your email to verify your account.`,
+    // });
     console.log("Sign up data:", data);
   }
 
@@ -239,16 +251,19 @@ export default function SignUpForm() {
               />
 
               <Button type="submit" className="w-full my-3">
-                Create Account
+                {isLoading ? "Creating Account..." : "Create Account"}
               </Button>
             </form>
           </Form>
 
           <div className="mt-4 text-center text-sm">
             Already have an account?{" "}
-            <a href="#" className="text-primary underline hover:no-underline">
+            <Link
+              to="/signin"
+              className="text-primary underline hover:no-underline"
+            >
               Sign in
-            </a>
+            </Link>
           </div>
         </CardContent>
       </Card>

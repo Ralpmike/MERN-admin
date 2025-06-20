@@ -16,10 +16,10 @@ router.get("/", adminAuth, getAllUsers);
 router.post("/", createUser);
 
 // Route to get a user by ID
-router.get("/:id", getUserById);
+router.get("/:id", adminAuth, getUserById);
 // Route to update a user by ID
-router.put("/:id", updateUser);
+router.put("/:id", adminAuth, updateUser);
 // Route to delete a user by ID
-router.delete("/:id", deleteUser);
+router.delete("/:id", adminAuth, deleteUser);
 
 module.exports = router;

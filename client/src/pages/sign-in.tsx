@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 import { z } from "zod";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "react-router";
+import { adminSignIn } from "@/services/admin.auth.services";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -36,6 +37,7 @@ type SignInFormValues = z.infer<typeof signInSchema>;
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
@@ -46,11 +48,16 @@ export default function SignInForm() {
     },
   });
 
-  function onSubmit(data: SignInFormValues) {
-    toast.success("Signed in successfully!", {
-      description: "Welcome back! Redirecting to your dashboard...",
-    });
-    console.log("Sign in data:", data);
+  async function onSubmit(data: SignInFormValues) {
+    setIsLoading(true);
+    try {
+      await adminSignIn(data);
+      console.log("Sign in data:", data);
+      form.reset();
+      setIsLoading(false);
+    } catch {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -136,16 +143,16 @@ export default function SignInForm() {
                     </FormItem>
                   )}
                 />
-                <a
-                  href="#"
+                <Link
+                  to="#"
                   className="text-sm text-primary underline hover:no-underline"
                 >
                   Forgot password?
-                </a>
+                </Link>
               </div>
 
               <Button type="submit" className="w-full">
-                Sign In
+                {isLoading ? "Signing In..." : "Sign In"}
               </Button>
             </form>
           </Form>
@@ -167,7 +174,7 @@ export default function SignInForm() {
               to="/signup"
               className="text-primary underline hover:no-underline"
             >
-              Sign up
+              Sign Up
             </Link>
           </div>
         </CardContent>

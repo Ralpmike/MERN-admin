@@ -118,6 +118,10 @@ const nationalityOptions = [
   "Mexican",
   "Russian",
   "South African",
+  "Nigerian",
+  "Egyptian",
+  "Argentinian",
+  "Colombian",
   "Other",
 ];
 

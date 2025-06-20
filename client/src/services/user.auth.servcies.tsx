@@ -1,11 +1,12 @@
-import axiosInstance from "@/base/axios";
+// import axiosInstance from "@/base/axios";
 import type { UserFormValues } from "@/pages/userform";
+import axiosApi from "@/utils/axios";
 import axios from "axios";
 import { toast } from "sonner";
 
 const registerUser = async (userData: UserFormValues): Promise<void> => {
   try {
-    const response = await axiosInstance.post("api/users", userData);
+    const response = await axiosApi.post("/users", userData);
     if (response && response.status === 201) {
       toast.success("Registration completed successfully!", {
         description:
