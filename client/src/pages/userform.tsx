@@ -128,6 +128,7 @@ const nationalityOptions = [
 export default function UserRegistrationForm() {
   const [isLoading, setIsLoading] = useState(false);
   const { registerUser } = userAuthServices;
+
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
     defaultValues: {

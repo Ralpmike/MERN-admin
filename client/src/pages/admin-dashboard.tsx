@@ -49,6 +49,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useAuth } from "@/context/auth-context";
 
 // Type definition based on your Mongoose schema
 interface User {
@@ -182,6 +183,11 @@ export default function UsersTable() {
   const [courseFilter, setCourseFilter] = useState<string>("all");
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
   const [editUser, setEditUser] = useState<User | null>(null);
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+  };
 
   // Filter users based on search term and course filter
   const filteredUsers = users.filter((user) => {
@@ -225,7 +231,7 @@ export default function UsersTable() {
   return (
     <Card className="w-full">
       <div className="ml-auto px-5">
-        <Button>logout</Button>
+        <Button onClick={handleLogout}>logout</Button>
       </div>
       <CardHeader>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
