@@ -1,6 +1,5 @@
 import axios from "axios";
 import axiosApi from "@/utils/axios";
-import { setAdminToken } from "@/helpers/axios-api-helpers";
 import { toast } from "sonner";
 import type { SignUpFormValues } from "@/pages/sign-up";
 
@@ -24,48 +23,21 @@ interface AdminSignUpResponse {
   message: string;
 }
 
-interface AdminSignInResponse {
+export interface Admin {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+export interface AdminSignInResponse {
   token: string;
-  admin: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
+  admin: Admin;
   message: string;
 }
-interface AdminSignRequest {
+export interface AdminSignRequest {
   email: string;
   password: string;
 }
-
-export const adminSignIn = async ({
-  email,
-  password,
-}: AdminSignRequest): Promise<void> => {
-  try {
-    const response = await axiosApi.post<AdminSignInResponse>("/admin/signin", {
-      email,
-      password,
-    });
-    console.log("Admin sign-in response:", response);
-
-    if (response && response.status === 200) {
-      const { token, admin, message } = response.data;
-      setAdminToken(token);
-      toast.success(message, {
-        description: `Welcome back, ${admin.firstName}!`,
-      });
-    }
-  } catch (error) {
-    console.error("Error during admin sign-in:", error);
-    if (axios.isAxiosError(error) && error.response) {
-      toast.error(error.response.data.message || "Unknown error");
-    } else {
-      toast.error("An unexpected error occurred. Please try again.");
-    }
-  }
-};
 
 export const adminSignUp = async (data: SignUpFormValues): Promise<void> => {
   const { firstName, lastName, email, password, agreeToTerms } = data;
@@ -85,8 +57,7 @@ export const adminSignUp = async (data: SignUpFormValues): Promise<void> => {
     console.log("Admin sign-up response:", response);
 
     if (response && response.status === 201) {
-      const { token, newAdmin: admin, message } = response.data;
-      setAdminToken(token);
+      const { newAdmin: admin, message } = response.data;
       toast.success(message, {
         description: `Welcome aboard, ${admin.firstName}!`,
       });

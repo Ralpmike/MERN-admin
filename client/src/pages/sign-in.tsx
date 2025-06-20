@@ -53,7 +53,7 @@ export default function SignInForm() {
     try {
       await adminSignIn(data);
       console.log("Sign in data:", data);
-      form.reset();
+      // form.reset();
       setIsLoading(false);
     } catch {
       setIsLoading(false);
@@ -151,7 +151,7 @@ export default function SignInForm() {
                 </Link>
               </div>
 
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Signing In..." : "Sign In"}
               </Button>
             </form>
