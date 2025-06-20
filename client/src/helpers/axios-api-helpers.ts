@@ -5,7 +5,7 @@ export function setAdminToken(token: string): void {
   TokenService.setToken(token);
 }
 
-export function getAdminToken(): string | null | void {
+export function getAdminToken(): string | null {
   return TokenService.getToken();
 }
 

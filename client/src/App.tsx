@@ -6,26 +6,29 @@ import Home from "./pages/home";
 import UserRegistrationForm from "./pages/userform";
 import Dashboard from "./pages/admin-dashboard";
 import ProtectedRoute from "./components/common/protectedRoute";
+import { AuthProvider } from "./context/auth-context";
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />}>
-          <Route index element={<UserRegistrationForm />} />
-          <Route path="/signin" element={<SignInForm />} />
-          <Route path="/signup" element={<SignUpForm />} />
-        </Route>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Home />}>
+            <Route index element={<UserRegistrationForm />} />
+            <Route path="/signin" element={<SignInForm />} />
+            <Route path="/signup" element={<SignUpForm />} />
+          </Route>
 
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

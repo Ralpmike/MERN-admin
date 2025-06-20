@@ -25,7 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "react-router";
-import { adminSignIn } from "@/services/admin.auth.services";
+import { useAuth } from "@/context/auth-context";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -38,6 +38,7 @@ type SignInFormValues = z.infer<typeof signInSchema>;
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { adminSignIn } = useAuth();
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),

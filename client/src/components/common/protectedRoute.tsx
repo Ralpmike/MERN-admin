@@ -16,11 +16,11 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
   //   }
   // }, [isAuthenticated, navigate]);
 
-  // if (!isAuthenticated) {
-  //   return null;
-  // }
+  if (!isAuthenticated) {
+    return <Navigate to="/signin" replace />;
+  }
 
-  return <div>{isAuthenticated ? children : <Navigate to="/signin" />}</div>;
+  return <div>{children}</div>;
 }
 
 export default ProtectedRoute;

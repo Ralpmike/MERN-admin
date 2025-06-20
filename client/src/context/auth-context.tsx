@@ -58,6 +58,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     email,
     password,
   }: AdminSignRequest): Promise<void> => {
+    console.log(
+      "Admin sign-in initiated with email:",
+      email,
+      "password:",
+      password
+    );
     try {
       const response = await axiosApi.post<AdminSignInResponse>(
         "/admin/signin",
