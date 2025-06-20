@@ -22,8 +22,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-// import { Checkbox } from "@/components/ui/checkbox";
-// import { Link } from "react-router";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Link } from "react-router";
 
 const signUpSchema = z
   .object({
@@ -38,12 +38,12 @@ const signUpSchema = z
         "Password must contain at least one uppercase letter, one lowercase letter, and one number"
       ),
     confirmPassword: z.string(),
-    // agreeToTerms: z
-    //   .boolean()
-    //   .refine(
-    //     (val) => val === true,
-    //     "You must agree to the terms and conditions"
-    //   ),
+    agreeToTerms: z
+      .boolean()
+      .refine(
+        (val) => val === true,
+        "You must agree to the terms and conditions"
+      ),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -64,7 +64,7 @@ export default function SignUpForm() {
       email: "",
       password: "",
       confirmPassword: "",
-      // agreeToTerms: false,
+      agreeToTerms: false,
     },
   });
 
@@ -76,8 +76,8 @@ export default function SignUpForm() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <Card className="w-full max-w-md mx-auto">
+    <div className="flex items-center justify-center min-h-screen w-full">
+      <Card className="w-full max-w-lg mx-auto">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
             Create Account
@@ -204,7 +204,7 @@ export default function SignUpForm() {
                 )}
               />
 
-              {/* <FormField
+              <FormField
                 control={form.control}
                 name="agreeToTerms"
                 render={({ field }) => (
@@ -236,7 +236,7 @@ export default function SignUpForm() {
                     </div>
                   </FormItem>
                 )}
-              /> */}
+              />
 
               <Button type="submit" className="w-full my-3">
                 Create Account

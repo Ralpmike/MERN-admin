@@ -1,7 +1,7 @@
 // src/lib/apiClient.ts
 import axios from "axios";
 
-export const axiosInstance = axios.create({
+const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api",
   headers: { "Content-Type": "application/json" },
 });
@@ -20,3 +20,5 @@ axiosInstance.interceptors.request.use(
 export function setToken(token: string) {
   localStorage.setItem("token", token);
 }
+
+export default axiosInstance;

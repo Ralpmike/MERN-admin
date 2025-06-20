@@ -19,6 +19,11 @@ const AdminSchema = new Schema(
       type: String,
       required: [true, "Password is required"],
     },
+    agreeToTerms: {
+      type: Boolean,
+      required: [true, "You must agree to the terms and conditions"],
+      default: false,
+    },
   },
   {
     timestamps: true,

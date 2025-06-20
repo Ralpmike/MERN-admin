@@ -54,8 +54,8 @@ export default function SignInForm() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <Card className="w-full max-w-md flex mx-auto flex-col ">
+    <div className="flex items-center justify-center min-h-screen w-full">
+      <Card className="w-full max-w-lg flex mx-auto flex-col ">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
             Welcome Back
