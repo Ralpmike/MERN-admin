@@ -5,6 +5,7 @@ const {
   getAdminCredential,
   adminSignin,
 } = require("../controllers/authControllers");
+const adminAuth = require("../middlewares/adminAuthMiddleware");
 
 router.post("/signup", adminSignup);
 
