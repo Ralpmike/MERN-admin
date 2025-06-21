@@ -50,7 +50,7 @@ axiosApi.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 axiosApi.interceptors.response.use((response: AxiosResponse) => response, async (error: AxiosError) => {
   if (error.response?.status === 401) {
     TokenService.removeToken()
-    window.location.href = "/signin"
+
   }
   return Promise.reject(error)
 })

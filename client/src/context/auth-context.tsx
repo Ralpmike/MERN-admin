@@ -20,6 +20,7 @@ interface AuthContextType {
   admin: Admin | null;
   logout: () => void;
   isAuthenticated: boolean;
+  loading: boolean;
 
   // Define the shape of your auth context here
   // For example, you might have user, login, logout, etc.
@@ -36,6 +37,7 @@ function AuthProvider({ children }: AuthProviderProps) {
   const [token, setTokenState] = useState<string | null>(
     () => getAdminToken() ?? null
   );
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,6 +46,8 @@ function AuthProvider({ children }: AuthProviderProps) {
       setToken(storedToken);
 
       fetchAdminDetails(storedToken);
+    } else {
+      setLoading(false);
     }
   }, []);
 
@@ -66,7 +70,7 @@ function AuthProvider({ children }: AuthProviderProps) {
       const adminDetails = response.data;
       console.log("Fetched admin details:", adminDetails);
 
-      setAdmin(adminDetails:{admin});
+      setAdmin(adminDetails);
     } catch (error) {
       console.error("Error fetching admin details:", error);
       if (axios.isAxiosError(error) && error.response) {
@@ -76,6 +80,8 @@ function AuthProvider({ children }: AuthProviderProps) {
       } else {
         toast.error("An unexpected error occurred. Please try again.");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -106,7 +112,7 @@ function AuthProvider({ children }: AuthProviderProps) {
         toast.success(message, {
           description: `Welcome back, ${admin.firstName}!`,
         });
-        navigate("/dashboard", { replace: true }); // Redirect to dashboard after successful sign-in
+        navigate("/dashboard");
       }
     } catch (error) {
       console.error("Error during admin sign-in:", error);
@@ -115,6 +121,7 @@ function AuthProvider({ children }: AuthProviderProps) {
       } else {
         toast.error("An unexpected error occurred. Please try again.");
       }
+      throw error; // Re-throw the error to handle it in the calling component if needed
     }
   };
 
@@ -132,6 +139,7 @@ function AuthProvider({ children }: AuthProviderProps) {
     admin,
     logout,
     isAuthenticated: !!token && !!admin,
+    loading,
   };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

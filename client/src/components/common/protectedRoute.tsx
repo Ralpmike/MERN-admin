@@ -1,26 +1,31 @@
 import { useAuth } from "@/context/auth-context";
-// import { useEffect } from "react";
-import { Navigate } from "react-router";
+import { Loader } from "lucide-react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
 
 type ProtectedRouteProps = {
   children: React.ReactNode;
 };
 
 function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
+  const navigate = useNavigate();
 
-  // Check if the user is authenticated
-  // useEffect(() => {
-  //   if (!isAuthenticated) {
-  //     navigate("/signin");
-  //   }
-  // }, [isAuthenticated, navigate]);
+  useEffect(() => {
+    if (!isAuthenticated && !loading) {
+      navigate("/signin");
+    }
+  }, [isAuthenticated, navigate, loading]);
 
-  if (!isAuthenticated) {
-    return <Navigate to="/signin" replace />;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen backdrop:blur">
+        <Loader className="animate-spin w-12 h-12" />
+      </div>
+    );
   }
 
-  return <div>{children}</div>;
+  return <>{children}</>;
 }
 
 export default ProtectedRoute;

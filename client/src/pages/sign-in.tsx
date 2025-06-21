@@ -56,7 +56,12 @@ export default function SignInForm() {
       console.log("Sign in data:", data);
       // form.reset();
       setIsLoading(false);
-    } catch {
+    } catch (error) {
+      // Handle error appropriately, e.g., show a toast notification
+      console.error("Sign in failed:", error);
+      // toast.error("Sign in failed. Please check your credentials.");
+      setIsLoading(false);
+    } finally {
       setIsLoading(false);
     }
   }

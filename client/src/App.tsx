@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router";
+import { Route, Routes } from "react-router";
 import SignInForm from "./pages/sign-in";
 import SignUpForm from "./pages/sign-up";
 // import Header from "./components/common/Header";
@@ -6,30 +6,25 @@ import Home from "./pages/home";
 import UserRegistrationForm from "./pages/userform";
 import Dashboard from "./pages/admin-dashboard";
 import ProtectedRoute from "./components/common/protectedRoute";
-import AuthProvider from "./context/auth-context";
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<UserRegistrationForm />} />
-            <Route path="/signin" element={<SignInForm />} />
-            <Route path="/signup" element={<SignUpForm />} />
-          </Route>
+    <Routes>
+      <Route path="/" element={<Home />}>
+        <Route index element={<UserRegistrationForm />} />
+        <Route path="/signin" element={<SignInForm />} />
+        <Route path="/signup" element={<SignUpForm />} />
+      </Route>
 
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   );
 }
 
