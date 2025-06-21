@@ -91,7 +91,7 @@ const getAdminCredential = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
     res.status(200).json({
-      admin: req.admin, // Assuming req.admin is set by the adminAuth middleware
+      adminCredentials: req.admin, // Assuming req.admin is set by the adminAuth middleware
       message: "Admin credentials retrieved successfully",
     });
   } catch (error) {

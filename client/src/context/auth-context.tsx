@@ -66,7 +66,7 @@ function AuthProvider({ children }: AuthProviderProps) {
       const adminDetails = response.data;
       console.log("Fetched admin details:", adminDetails);
 
-      setAdmin(adminDetails);
+      setAdmin(adminDetails:{admin});
     } catch (error) {
       console.error("Error fetching admin details:", error);
       if (axios.isAxiosError(error) && error.response) {
