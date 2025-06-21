@@ -1,10 +1,14 @@
-"use client";
-
-import type React from "react";
-
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Edit, Trash2, Plus, Search, Filter } from "lucide-react";
+import {
+  Edit,
+  Trash2,
+  Plus,
+  Search,
+  Filter,
+  Loader,
+  BadgeAlertIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -31,14 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,9 +47,19 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useAuth } from "@/context/auth-context";
+import { useGetAllUsers } from "@/hooks/query/useUsers";
+import useDebounceValue from "@/hooks/useDebounceValue";
+import Texthighlighter from "@/components/common/textHighlighter";
+import EditUserDialog from "@/components/common/edit-user-dialog";
+import {
+  useCreateNewUser,
+  useDeleteUser,
+  useEditUser,
+} from "@/hooks/mutate/usemutate.fn";
+import AddUserDialog from "@/components/common/create.user.dialog";
 
 // Type definition based on your Mongoose schema
-interface User {
+export interface User {
   _id: string;
   firstName: string;
   lastName: string;
@@ -75,98 +82,98 @@ interface User {
 }
 
 // Mock data that matches your schema
-const mockUsers: User[] = [
-  {
-    _id: "1",
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-    age: 25,
-    location: "123 Main St, New York, NY",
-    nationality: "american",
-    city: "New York",
-    state: "NY",
-    phoneNumber: "+1 (555) 123-4567",
-    course: "web developement",
-    createdAt: "2024-01-15T10:30:00Z",
-    updatedAt: "2024-01-15T10:30:00Z",
-  },
-  {
-    _id: "2",
-    firstName: "Jane",
-    lastName: "Smith",
-    email: "jane.smith@example.com",
-    age: 28,
-    location: "456 Oak Ave, Los Angeles, CA",
-    nationality: "american",
-    city: "Los Angeles",
-    state: "CA",
-    phoneNumber: "+1 (555) 987-6543",
-    course: "mobile development",
-    createdAt: "2024-01-16T14:20:00Z",
-    updatedAt: "2024-01-16T14:20:00Z",
-  },
-  {
-    _id: "3",
-    firstName: "Ahmed",
-    lastName: "Hassan",
-    email: "ahmed.hassan@example.com",
-    age: 30,
-    location: "789 Pine St, Chicago, IL",
-    nationality: "egyptian",
-    city: "Chicago",
-    state: "IL",
-    phoneNumber: "+1 (555) 456-7890",
-    course: "backend development",
-    createdAt: "2024-01-17T09:15:00Z",
-    updatedAt: "2024-01-17T09:15:00Z",
-  },
-  {
-    _id: "4",
-    firstName: "Maria",
-    lastName: "Garcia",
-    email: "maria.garcia@example.com",
-    age: 26,
-    location: "321 Elm St, Miami, FL",
-    nationality: "spanish",
-    city: "Miami",
-    state: "FL",
-    phoneNumber: "+1 (555) 234-5678",
-    course: "design",
-    createdAt: "2024-01-18T16:45:00Z",
-    updatedAt: "2024-01-18T16:45:00Z",
-  },
-  {
-    _id: "5",
-    firstName: "David",
-    lastName: "Wilson",
-    email: "david.wilson@example.com",
-    age: 32,
-    location: "654 Maple Dr, Seattle, WA",
-    nationality: "canadian",
-    city: "Seattle",
-    state: "WA",
-    phoneNumber: "+1 (555) 345-6789",
-    course: "game development",
-    createdAt: "2024-01-19T11:30:00Z",
-    updatedAt: "2024-01-19T11:30:00Z",
-  },
-  {
-    _id: "6",
-    firstName: "Lisa",
-    lastName: "Chen",
-    email: "lisa.chen@example.com",
-    age: 24,
-    location: "987 Cedar Ln, Austin, TX",
-    nationality: "chinese",
-    city: "Austin",
-    state: "TX",
-    phoneNumber: "+1 (555) 567-8901",
-    course: "other",
-    createdAt: "2024-01-20T13:20:00Z",
-    updatedAt: "2024-01-20T13:20:00Z",
-  },
-];
+// const mockUsers: User[] = [
+//   {
+//     _id: "1",
+//     firstName: "John",
+//     lastName: "Doe",
+//     email: "john.doe@example.com",
+//     age: 25,
+//     location: "123 Main St, New York, NY",
+//     nationality: "american",
+//     city: "New York",
+//     state: "NY",
+//     phoneNumber: "+1 (555) 123-4567",
+//     course: "web developement",
+//     createdAt: "2024-01-15T10:30:00Z",
+//     updatedAt: "2024-01-15T10:30:00Z",
+//   },
+//   {
+//     _id: "2",
+//     firstName: "Jane",
+//     lastName: "Smith",
+//     email: "jane.smith@example.com",
+//     age: 28,
+//     location: "456 Oak Ave, Los Angeles, CA",
+//     nationality: "american",
+//     city: "Los Angeles",
+//     state: "CA",
+//     phoneNumber: "+1 (555) 987-6543",
+//     course: "mobile development",
+//     createdAt: "2024-01-16T14:20:00Z",
+//     updatedAt: "2024-01-16T14:20:00Z",
+//   },
+//   {
+//     _id: "3",
+//     firstName: "Ahmed",
+//     lastName: "Hassan",
+//     email: "ahmed.hassan@example.com",
+//     age: 30,
+//     location: "789 Pine St, Chicago, IL",
+//     nationality: "egyptian",
+//     city: "Chicago",
+//     state: "IL",
+//     phoneNumber: "+1 (555) 456-7890",
+//     course: "backend development",
+//     createdAt: "2024-01-17T09:15:00Z",
+//     updatedAt: "2024-01-17T09:15:00Z",
+//   },
+//   {
+//     _id: "4",
+//     firstName: "Maria",
+//     lastName: "Garcia",
+//     email: "maria.garcia@example.com",
+//     age: 26,
+//     location: "321 Elm St, Miami, FL",
+//     nationality: "spanish",
+//     city: "Miami",
+//     state: "FL",
+//     phoneNumber: "+1 (555) 234-5678",
+//     course: "design",
+//     createdAt: "2024-01-18T16:45:00Z",
+//     updatedAt: "2024-01-18T16:45:00Z",
+//   },
+//   {
+//     _id: "5",
+//     firstName: "David",
+//     lastName: "Wilson",
+//     email: "david.wilson@example.com",
+//     age: 32,
+//     location: "654 Maple Dr, Seattle, WA",
+//     nationality: "canadian",
+//     city: "Seattle",
+//     state: "WA",
+//     phoneNumber: "+1 (555) 345-6789",
+//     course: "game development",
+//     createdAt: "2024-01-19T11:30:00Z",
+//     updatedAt: "2024-01-19T11:30:00Z",
+//   },
+//   {
+//     _id: "6",
+//     firstName: "Lisa",
+//     lastName: "Chen",
+//     email: "lisa.chen@example.com",
+//     age: 24,
+//     location: "987 Cedar Ln, Austin, TX",
+//     nationality: "chinese",
+//     city: "Austin",
+//     state: "TX",
+//     phoneNumber: "+1 (555) 567-8901",
+//     course: "other",
+//     createdAt: "2024-01-20T13:20:00Z",
+//     updatedAt: "2024-01-20T13:20:00Z",
+//   },
+// ];
 
 const courseColors = {
   "web developement": "bg-blue-100 text-blue-800",
@@ -178,44 +185,100 @@ const courseColors = {
 };
 
 export default function UsersTable() {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  // const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [courseFilter, setCourseFilter] = useState<string>("all");
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
   const [editUser, setEditUser] = useState<User | null>(null);
+  const [addUserOpen, setAddUserOpen] = useState(false);
+
   const { logout } = useAuth();
 
   const handleLogout = () => {
     logout();
   };
 
+  const { data: users = [], isLoading, error } = useGetAllUsers();
+  const { mutate: updateUserFn, isPending: isUpdatePending } = useEditUser();
+  const { mutate: deleteUserFn, isPending: isDeletePending } = useDeleteUser();
+  const { mutate: addUserFn, isPending: isAddPending } = useCreateNewUser();
+
+  const debouncedSearch = useDebounceValue(searchTerm, 500);
+  const filteredUsers = useMemo(() => {
+    if (!users) return [];
+
+    return users.filter((user) => {
+      const matchesSearch =
+        user.firstName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        user.lastName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        user.email.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        user.city.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        user.state.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        user.nationality.toLowerCase().includes(debouncedSearch.toLowerCase());
+
+      const matchesCourse =
+        courseFilter === "all" || user.course === courseFilter;
+
+      return matchesSearch && matchesCourse;
+    });
+  }, [users, debouncedSearch, courseFilter]);
+
+  if (isLoading) {
+    return (
+      <div>
+        <div className="flex items-center justify-center h-screen backdrop:blur">
+          <Loader className="animate-spin w-12 h-12" />
+        </div>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen backdrop:blur">
+        <p className="text-red-500">
+          {" "}
+          <BadgeAlertIcon />
+          <strong>Error:</strong> {error.message}
+        </p>
+      </div>
+    );
+  }
+  console.log("users data", users);
+
   // Filter users based on search term and course filter
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch =
-      user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.state.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesCourse =
-      courseFilter === "all" || user.course === courseFilter;
-
-    return matchesSearch && matchesCourse;
-  });
 
   const handleDeleteUser = (userId: string) => {
-    setUsers(users.filter((user) => user._id !== userId));
-    setDeleteUserId(null);
-    toast.success("User deleted successfully");
+    deleteUserFn(userId, {
+      onSuccess: () => {
+        setDeleteUserId(null);
+      },
+      onError: () => {
+        toast.error("Failed to delete user");
+      },
+    });
   };
 
   const handleEditUser = (updatedUser: User) => {
-    setUsers(
-      users.map((user) => (user._id === updatedUser._id ? updatedUser : user))
-    );
-    setEditUser(null);
-    toast.success("User updated successfully");
+    updateUserFn(updatedUser, {
+      onSuccess: () => {
+        setEditUser(null);
+      },
+      onError: () => {
+        toast.error("Failed to update user");
+      },
+    });
+  };
+
+  const handleAddUser = (newUser: User) => {
+    // setUsers([...users, user]);
+    addUserFn(newUser, {
+      onSuccess: () => {
+        setAddUserOpen(false);
+      },
+      onError: () => {
+        toast.error("Failed to add user");
+      },
+    });
   };
 
   const formatDate = (dateString: string) => {
@@ -240,11 +303,11 @@ export default function UsersTable() {
               Registered Users
             </CardTitle>
             <CardDescription>
-              Manage all registered users ({filteredUsers.length} of{" "}
+              Manage all registered users ({filteredUsers?.length} of{" "}
               {users.length} users)
             </CardDescription>
           </div>
-          <Button className="w-fit">
+          <Button className="w-fit" onClick={() => setAddUserOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Add New User
           </Button>
@@ -257,7 +320,9 @@ export default function UsersTable() {
             <Input
               placeholder="Search users by name, email, city, or state..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+              }}
               className="pl-10"
             />
           </div>
@@ -306,7 +371,7 @@ export default function UsersTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUsers.length === 0 ? (
+              {filteredUsers?.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={9}
@@ -318,10 +383,17 @@ export default function UsersTable() {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredUsers.map((user) => (
+                filteredUsers?.map((user) => (
                   <TableRow key={user._id}>
                     <TableCell className="font-medium">
-                      {user.firstName} {user.lastName}
+                      <Texthighlighter
+                        text={user.firstName}
+                        highlight={debouncedSearch}
+                      />{" "}
+                      <Texthighlighter
+                        text={user.lastName}
+                        highlight={debouncedSearch}
+                      />
                     </TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.age}</TableCell>
@@ -343,7 +415,11 @@ export default function UsersTable() {
                     </TableCell>
                     <TableCell>{user.phoneNumber}</TableCell>
                     <TableCell>
-                      <Badge className={courseColors[user.course]}>
+                      <Badge
+                        className={
+                          courseColors[user.course as keyof typeof courseColors]
+                        }
+                      >
                         {user.course}
                       </Badge>
                     </TableCell>
@@ -396,7 +472,11 @@ export default function UsersTable() {
               onClick={() => deleteUserId && handleDeleteUser(deleteUserId)}
               className="bg-red-600 hover:bg-red-700"
             >
-              Delete User
+              {isDeletePending
+                ? `${(
+                    <Loader className="mr-2 h-4 w-4 animate-spin" />
+                  )} Deleting...`
+                : "Delete User"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -408,6 +488,16 @@ export default function UsersTable() {
           user={editUser}
           onSave={handleEditUser}
           onCancel={() => setEditUser(null)}
+          isPending={isUpdatePending}
+        />
+      )}
+
+      {/* Add User Dialog */}
+      {addUserOpen && (
+        <AddUserDialog
+          onSave={handleAddUser}
+          onCancel={() => setAddUserOpen(false)}
+          isPending={isAddPending}
         />
       )}
     </Card>
@@ -415,169 +505,5 @@ export default function UsersTable() {
 }
 
 // Edit User Dialog Component
-interface EditUserDialogProps {
-  user: User;
-  onSave: (user: User) => void;
-  onCancel: () => void;
-}
 
-function EditUserDialog({ user, onSave, onCancel }: EditUserDialogProps) {
-  const [formData, setFormData] = useState<User>({
-    ...user,
-    updatedAt: new Date().toISOString(),
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave(formData);
-  };
-
-  const handleInputChange = (field: keyof User, value: string | number) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-      updatedAt: new Date().toISOString(),
-    }));
-  };
-
-  return (
-    <Dialog open={true} onOpenChange={onCancel}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Edit User</DialogTitle>
-          <DialogDescription>
-            Update user information. All fields are required.
-          </DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium">First Name</label>
-              <Input
-                value={formData.firstName}
-                onChange={(e) => handleInputChange("firstName", e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Last Name</label>
-              <Input
-                value={formData.lastName}
-                onChange={(e) => handleInputChange("lastName", e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium">Email</label>
-              <Input
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Age</label>
-              <Input
-                type="number"
-                value={formData.age}
-                onChange={(e) =>
-                  handleInputChange("age", Number.parseInt(e.target.value))
-                }
-                min="16"
-                max="100"
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium">Location</label>
-            <Input
-              value={formData.location}
-              onChange={(e) => handleInputChange("location", e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="text-sm font-medium">City</label>
-              <Input
-                value={formData.city}
-                onChange={(e) => handleInputChange("city", e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">State</label>
-              <Input
-                value={formData.state}
-                onChange={(e) => handleInputChange("state", e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Nationality</label>
-              <Input
-                value={formData.nationality}
-                onChange={(e) =>
-                  handleInputChange("nationality", e.target.value)
-                }
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium">Phone Number</label>
-            <Input
-              value={formData.phoneNumber}
-              onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium">Course</label>
-            <Select
-              value={formData.course}
-              onValueChange={(value) => handleInputChange("course", value)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="web developement">
-                  Web Development
-                </SelectItem>
-                <SelectItem value="mobile development">
-                  Mobile Development
-                </SelectItem>
-                <SelectItem value="backend development">
-                  Backend Development
-                </SelectItem>
-                <SelectItem value="game development">
-                  Game Development
-                </SelectItem>
-                <SelectItem value="design">Design</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button type="submit">Save Changes</Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
+// Add User Dialog Component
