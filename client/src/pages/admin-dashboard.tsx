@@ -472,11 +472,7 @@ export default function UsersTable() {
               onClick={() => deleteUserId && handleDeleteUser(deleteUserId)}
               className="bg-red-600 hover:bg-red-700"
             >
-              {isDeletePending
-                ? `${(
-                    <Loader className="mr-2 h-4 w-4 animate-spin" />
-                  )} Deleting...`
-                : "Delete User"}
+              {isDeletePending ? "Deleting..." : "Delete User"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

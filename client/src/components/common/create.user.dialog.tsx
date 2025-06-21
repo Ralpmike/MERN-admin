@@ -17,7 +17,6 @@ import { useState } from "react";
 import { Input } from "../ui/input";
 import type { User } from "@/pages/admin-dashboard";
 import { Button } from "../ui/button";
-import { Loader } from "lucide-react";
 
 interface AddUserDialogProps {
   onSave: (user: User) => void;
@@ -206,9 +205,7 @@ export default function AddUserDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending
-                ? `${(<Loader className="animate-spin w6 h-6" />)} Loading...`
-                : " Add User"}
+              {isPending ? " Loading..." : " Add User"}
             </Button>
           </DialogFooter>
         </form>
