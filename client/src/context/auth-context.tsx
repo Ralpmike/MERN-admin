@@ -31,7 +31,7 @@ interface AuthProviderProps {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: AuthProviderProps) {
+function AuthProvider({ children }: AuthProviderProps) {
   const [admin, setAdmin] = useState<Admin | null>(null);
   const [token, setTokenState] = useState<string | null>(
     () => getAdminToken() ?? null
@@ -41,9 +41,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const storedToken = getAdminToken();
     if (storedToken) {
-      setTokenState(storedToken);
+      setToken(storedToken);
 
-      fetchAdminDetails();
+      fetchAdminDetails(storedToken);
     }
   }, []);
 
@@ -56,11 +56,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const fetchAdminDetails = async () => {
+  const fetchAdminDetails = async (token: string) => {
     try {
-      const response = await axiosApi.get<Admin>("/admin/me");
-      console.log("Fetched admin details:", response.data);
-      setAdmin(response.data);
+      const response = await axiosApi.get<Admin>("/admin/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const adminDetails = response.data;
+      console.log("Fetched admin details:", adminDetails);
+
+      setAdmin(adminDetails);
     } catch (error) {
       console.error("Error fetching admin details:", error);
       if (axios.isAxiosError(error) && error.response) {
@@ -138,4 +144,4 @@ export function useAuth() {
   return context;
 }
 
-export default AuthContext;
+export default AuthProvider;

@@ -23,7 +23,7 @@ const adminAuth = async (req, res, next) => {
     // console.log("Decoded Token:", decoded);
 
     //? 5. Attach the decoded admin info to the request object
-    const admin = await Admin.findById(decoded.id);
+    const admin = await Admin.findById(decoded.id).select("-password");
 
     if (!admin) {
       return res.status(404).json({

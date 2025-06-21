@@ -33,6 +33,7 @@ export interface AdminSignInResponse {
   token: string;
   admin: Admin;
   message: string;
+  password?: string;
 }
 export interface AdminSignRequest {
   email: string;
