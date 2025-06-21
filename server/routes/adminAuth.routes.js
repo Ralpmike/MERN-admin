@@ -8,7 +8,7 @@ const {
 
 router.post("/signup", adminSignup);
 
-router.get("/me", getAdminCredential);
+router.get("/me", adminAuth, getAdminCredential);
 
 router.post("/signin", adminSignin);
 
