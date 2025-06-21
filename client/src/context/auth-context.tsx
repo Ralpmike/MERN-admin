@@ -42,6 +42,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const storedToken = getAdminToken();
     if (storedToken) {
       setTokenState(storedToken);
+
+      fetchAdminDetails();
     }
   }, []);
 
@@ -51,6 +53,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setAdminToken(token);
     } else {
       removeAdminToken();
+    }
+  };
+
+  const fetchAdminDetails = async () => {
+    try {
+      const response = await axiosApi.get<Admin>("/admin/me");
+      console.log("Fetched admin details:", response.data);
+      setAdmin(response.data);
+    } catch (error) {
+      console.error("Error fetching admin details:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(
+          error.response.data.message || "Failed to fetch admin details"
+        );
+      } else {
+        toast.error("An unexpected error occurred. Please try again.");
+      }
     }
   };
 

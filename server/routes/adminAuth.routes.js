@@ -2,13 +2,13 @@ const express = require("express");
 const router = express.Router();
 const {
   adminSignup,
-  getAdminCredentials,
+  getAdminCredential,
   adminSignin,
 } = require("../controllers/authControllers");
 
 router.post("/signup", adminSignup);
 
-router.get("/credentials", getAdminCredentials);
+router.get("/me", getAdminCredential);
 
 router.post("/signin", adminSignin);
 

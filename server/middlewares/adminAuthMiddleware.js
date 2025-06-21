@@ -1,13 +1,14 @@
 const jwt = require("jsonwebtoken");
+const Admin = require("../models/admin.model");
 
-const adminAuth = (req, res, next) => {
+const adminAuth = async (req, res, next) => {
   //? 1. Check if the request has an authorization header: get the token from the header
   // console.log("Headers:", req.headers);
   const authHeader = req.headers.authorization;
 
   //? 2. If the header is not present and does not start with "Bearer", return a 401 Unauthorized response
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    res.status(401).json({
+    return res.status(401).json({
       message: "Unauthorized: No token provided",
     });
   }
@@ -22,7 +23,15 @@ const adminAuth = (req, res, next) => {
     // console.log("Decoded Token:", decoded);
 
     //? 5. Attach the decoded admin info to the request object
-    req.admin = decoded;
+    const admin = await Admin.findById(decoded.id);
+
+    if (!admin) {
+      return res.status(404).json({
+        message: "Admin not found",
+      });
+    }
+
+    req.admin = admin;
 
     //? 6. If the token is valid, proceed to the next middleware or route handler
     next();

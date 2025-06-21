@@ -85,15 +85,17 @@ const adminSignin = async (req, res) => {
   }
 };
 
-const getAdminCredentials = async (req, res) => {
+const getAdminCredential = async (req, res) => {
   try {
-    const AdminCredentials = await Admin.find({});
+    if (!req.admin) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
     res.status(200).json({
-      AdminCredentials,
+      admin: req.admin, // Assuming req.admin is set by the adminAuth middleware
       message: "Admin credentials retrieved successfully",
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: "Internal server error",
       error: error.message,
     });
@@ -102,7 +104,7 @@ const getAdminCredentials = async (req, res) => {
 
 module.exports = {
   adminSignup,
-  getAdminCredentials,
+  getAdminCredential,
   adminSignin, // Export the adminSignin function
   // Add more admin-related controllers here as needed
 };
