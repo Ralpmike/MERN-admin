@@ -203,6 +203,7 @@ export default function UsersTable() {
   const {
     data: users,
     isLoading,
+    isFetching: isFetchingUsers,
     error,
   } = useGetAllUsers({
     page: currentPage,
@@ -241,15 +242,6 @@ export default function UsersTable() {
   //   });
   // }, [users, debouncedSearch, courseFilter]);
 
-  if (isLoading) {
-    return (
-      <div>
-        <div className="flex items-center justify-center h-screen backdrop:blur">
-          <Loader className="animate-spin w-12 h-12" />
-        </div>
-      </div>
-    );
-  }
   if (error) {
     return (
       <div className="flex items-center justify-center h-screen backdrop:blur">
@@ -390,7 +382,15 @@ export default function UsersTable() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers?.length === 0 ? (
+                {isLoading || isFetchingUsers ? (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center py-8">
+                      <div className="flex items-center justify-center">
+                        <Loader className="animate-spin w-8 h-8 text-gray-500" />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : filteredUsers?.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={9}
