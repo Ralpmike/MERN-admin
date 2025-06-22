@@ -16,12 +16,19 @@ export interface PaginatedUsersResponse {
   message: string;
 }
 
+export interface QueryParams {
+  page: number;
+  limit: number;
+  search: string;
+  course: string;
+}
 
 
-export const useGetAllUsers = (page: number, limit: number = 10) => {
+
+export const useGetAllUsers = (params: QueryParams) => {
   return useQuery<PaginatedUsersResponse>({
-    queryKey: ["users", page, limit],
-    queryFn: async () => await getAllUsers(page, limit),
+    queryKey: ["users", params],
+    queryFn: async () => await getAllUsers(params),
     // keepPreviousData: true, // Uncomment if using React Query v3 or above and your types support it
   });
 }

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   Edit,
@@ -185,7 +185,6 @@ const courseColors = {
 };
 
 export default function UsersTable() {
-  // const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [courseFilter, setCourseFilter] = useState<string>("all");
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
@@ -199,35 +198,48 @@ export default function UsersTable() {
   const handleLogout = () => {
     logout();
   };
+  const debouncedSearch = useDebounceValue(searchTerm, 500);
 
   const {
     data: users,
     isLoading,
     error,
-  } = useGetAllUsers(currentPage, pageSize);
+  } = useGetAllUsers({
+    page: currentPage,
+    limit: pageSize,
+    search: debouncedSearch,
+    course: courseFilter,
+  });
   const { mutate: updateUserFn, isPending: isUpdatePending } = useEditUser();
   const { mutate: deleteUserFn, isPending: isDeletePending } = useDeleteUser();
   const { mutate: addUserFn, isPending: isAddPending } = useCreateNewUser();
 
-  const debouncedSearch = useDebounceValue(searchTerm, 500);
-  const filteredUsers = useMemo(() => {
-    if (!users) return [];
+  const { users: filteredUsers, metaData } = users ?? {
+    users: [],
+    metaData: {},
+  };
 
-    return users.users.filter((user) => {
-      const matchesSearch =
-        user.firstName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        user.lastName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        user.email.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        user.city.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        user.state.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        user.nationality.toLowerCase().includes(debouncedSearch.toLowerCase());
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, courseFilter]);
+  // const filteredUsers = useMemo(() => {
+  //   if (!users) return [];
 
-      const matchesCourse =
-        courseFilter === "all" || user.course === courseFilter;
+  //   return users.users.filter((user) => {
+  //     const matchesSearch =
+  //       user.firstName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+  //       user.lastName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+  //       user.email.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+  //       user.city.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+  //       user.state.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+  //       user.nationality.toLowerCase().includes(debouncedSearch.toLowerCase());
 
-      return matchesSearch && matchesCourse;
-    });
-  }, [users, debouncedSearch, courseFilter]);
+  //     const matchesCourse =
+  //       courseFilter === "all" || user.course === courseFilter;
+
+  //     return matchesSearch && matchesCourse;
+  //   });
+  // }, [users, debouncedSearch, courseFilter]);
 
   if (isLoading) {
     return (
@@ -514,15 +526,15 @@ export default function UsersTable() {
           Previous
         </Button>
         <span className="px-2">
-          Page {currentPage} of {users?.metaData.totalPages}
+          Page {currentPage} of {metaData.totalPages}
         </span>
         <Button
           onClick={() =>
             setCurrentPage((prev) =>
-              prev < (users?.metaData?.totalPages ?? 1) ? prev + 1 : prev
+              prev < (metaData?.totalPages ?? 1) ? prev + 1 : prev
             )
           }
-          disabled={currentPage === users?.metaData.totalPages}
+          disabled={currentPage === metaData.totalPages}
         >
           Next
         </Button>

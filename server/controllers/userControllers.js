@@ -5,20 +5,46 @@ const getAllUsers = async (req, res) => {
   try {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 10;
+    const search = req.query.search?.trim() || "";
+    const course = req.query.course?.trim() || "";
     const start = (page - 1) * limit;
     const end = page * limit;
 
-    const users = await User.find();
+    const query = {};
 
-    const paginatedUsers = users.slice(start, end);
+    if (search) {
+      const regex = new RegExp(search, "i");
+      query.$or = [
+        { firstname: regex },
+        { lastname: regex },
+        { email: regex },
+        { course: regex },
+        { location: regex },
+        { nationality: regex },
+        { city: regex },
+        { state: regex },
+        { phoneNumber: regex },
+      ];
+    }
+
+    if (course && course !== "all") {
+      query.course = course;
+    }
+
+    const total = await User.countDocuments(query);
+
+    const users = await User.find(query)
+      .sort({ createdAt: -1 })
+      .skip(start)
+      .limit(limit);
 
     res.status(200).json({
-      users: paginatedUsers,
+      users,
       metaData: {
         page,
         limit,
-        total: users.length,
-        totalPages: Math.ceil(users.length / limit),
+        total,
+        totalPages: Math.ceil(total / limit),
       },
       message: "Users fetched successfully",
     });
