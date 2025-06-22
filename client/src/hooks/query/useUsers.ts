@@ -1,24 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAllUsers } from "@/services/user.api";
+import type { User } from "@/pages/admin-dashboard";
 
 // types/user.types.ts or wherever you define your shared types
-
-export interface User {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  age: number;
-  city: string;
-  state: string;
-  nationality: string;
-  phoneNumber: string;
-  course: string;
-  location: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface MetaData {
   page: number;
   limit: number;

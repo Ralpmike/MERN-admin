@@ -201,7 +201,7 @@ export default function UsersTable() {
   };
 
   const {
-    data: users = [],
+    data: users,
     isLoading,
     error,
   } = useGetAllUsers(currentPage, pageSize);
@@ -213,7 +213,7 @@ export default function UsersTable() {
   const filteredUsers = useMemo(() => {
     if (!users) return [];
 
-    return users.filter((user) => {
+    return users.users.filter((user) => {
       const matchesSearch =
         user.firstName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
         user.lastName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
@@ -298,211 +298,236 @@ export default function UsersTable() {
   };
 
   return (
-    <Card className="w-full">
-      <div className="ml-auto px-5">
-        <Button onClick={handleLogout}>logout</Button>
-      </div>
-      <CardHeader>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <CardTitle className="text-2xl font-bold">
-              Registered Users
-            </CardTitle>
-            <CardDescription>
-              Manage all registered users ({filteredUsers?.length} of{" "}
-              {users.length} users)
-            </CardDescription>
-          </div>
-          <Button className="w-fit" onClick={() => setAddUserOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add New User
-          </Button>
+    <>
+      <Card className="w-full">
+        <div className="ml-auto px-5">
+          <Button onClick={handleLogout}>logout</Button>
         </div>
-
-        {/* Search and Filter Controls */}
-        <div className="flex flex-col sm:flex-row gap-4 mt-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search users by name, email, city, or state..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-              }}
-              className="pl-10"
-            />
+        <CardHeader>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <CardTitle className="text-2xl font-bold">
+                Registered Users
+              </CardTitle>
+              <CardDescription>
+                Manage all registered users ({filteredUsers?.length} of{" "}
+                {users?.users?.length} users)
+              </CardDescription>
+            </div>
+            <Button className="w-fit" onClick={() => setAddUserOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add New User
+            </Button>
           </div>
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-gray-400" />
-            <Select value={courseFilter} onValueChange={setCourseFilter}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Filter by course" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Courses</SelectItem>
-                <SelectItem value="web developement">
-                  Web Development
-                </SelectItem>
-                <SelectItem value="mobile development">
-                  Mobile Development
-                </SelectItem>
-                <SelectItem value="backend development">
-                  Backend Development
-                </SelectItem>
-                <SelectItem value="game development">
-                  Game Development
-                </SelectItem>
-                <SelectItem value="design">Design</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </CardHeader>
 
-      <CardContent>
-        <div className="rounded-md border overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Age</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Nationality</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Course</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredUsers?.length === 0 ? (
+          {/* Search and Filter Controls */}
+          <div className="flex flex-col sm:flex-row gap-4 mt-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search users by name, email, city, or state..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                }}
+                className="pl-10"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-gray-400" />
+              <Select value={courseFilter} onValueChange={setCourseFilter}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Filter by course" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Courses</SelectItem>
+                  <SelectItem value="web developement">
+                    Web Development
+                  </SelectItem>
+                  <SelectItem value="mobile development">
+                    Mobile Development
+                  </SelectItem>
+                  <SelectItem value="backend development">
+                    Backend Development
+                  </SelectItem>
+                  <SelectItem value="game development">
+                    Game Development
+                  </SelectItem>
+                  <SelectItem value="design">Design</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent>
+          <div className="rounded-md border overflow-x-auto">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell
-                    colSpan={9}
-                    className="text-center py-8 text-gray-500"
-                  >
-                    {searchTerm || courseFilter !== "all"
-                      ? "No users found matching your criteria"
-                      : "No users registered yet"}
-                  </TableCell>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Age</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Nationality</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Course</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ) : (
-                filteredUsers?.map((user) => (
-                  <TableRow key={user._id}>
-                    <TableCell className="font-medium">
-                      <Texthighlighter
-                        text={user.firstName}
-                        highlight={debouncedSearch}
-                      />{" "}
-                      <Texthighlighter
-                        text={user.lastName}
-                        highlight={debouncedSearch}
-                      />
-                    </TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.age}</TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <div>
-                          {user.city}, {user.state}
-                        </div>
-                        <div
-                          className="text-gray-500 truncate max-w-[150px]"
-                          title={user.location}
-                        >
-                          {user.location}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="capitalize">
-                      {user.nationality}
-                    </TableCell>
-                    <TableCell>{user.phoneNumber}</TableCell>
-                    <TableCell>
-                      <Badge
-                        className={
-                          courseColors[user.course as keyof typeof courseColors]
-                        }
-                      >
-                        {user.course}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-500">
-                      {formatDate(user.createdAt)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setEditUser(user)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setDeleteUserId(user._id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+              </TableHeader>
+              <TableBody>
+                {filteredUsers?.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={9}
+                      className="text-center py-8 text-gray-500"
+                    >
+                      {searchTerm || courseFilter !== "all"
+                        ? "No users found matching your criteria"
+                        : "No users registered yet"}
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
+                ) : (
+                  filteredUsers?.map((user) => (
+                    <TableRow key={user._id}>
+                      <TableCell className="font-medium">
+                        <Texthighlighter
+                          text={user.firstName}
+                          highlight={debouncedSearch}
+                        />{" "}
+                        <Texthighlighter
+                          text={user.lastName}
+                          highlight={debouncedSearch}
+                        />
+                      </TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{user.age}</TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          <div>
+                            {user.city}, {user.state}
+                          </div>
+                          <div
+                            className="text-gray-500 truncate max-w-[150px]"
+                            title={user.location}
+                          >
+                            {user.location}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="capitalize">
+                        {user.nationality}
+                      </TableCell>
+                      <TableCell>{user.phoneNumber}</TableCell>
+                      <TableCell>
+                        <Badge
+                          className={
+                            courseColors[
+                              user.course as keyof typeof courseColors
+                            ]
+                          }
+                        >
+                          {user.course}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-500">
+                        {formatDate(user.createdAt)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditUser(user)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setDeleteUserId(user._id)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog
-        open={!!deleteUserId}
-        onOpenChange={() => setDeleteUserId(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              user account and remove their data from the system.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => deleteUserId && handleDeleteUser(deleteUserId)}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {isDeletePending ? "Deleting..." : "Delete User"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog
+          open={!!deleteUserId}
+          onOpenChange={() => setDeleteUserId(null)}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the
+                user account and remove their data from the system.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteUserId && handleDeleteUser(deleteUserId)}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                {isDeletePending ? "Deleting..." : "Delete User"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
-      {/* Edit User Dialog */}
-      {editUser && (
-        <EditUserDialog
-          user={editUser}
-          onSave={handleEditUser}
-          onCancel={() => setEditUser(null)}
-          isPending={isUpdatePending}
-        />
-      )}
+        {/* Edit User Dialog */}
+        {editUser && (
+          <EditUserDialog
+            user={editUser}
+            onSave={handleEditUser}
+            onCancel={() => setEditUser(null)}
+            isPending={isUpdatePending}
+          />
+        )}
 
-      {/* Add User Dialog */}
-      {addUserOpen && (
-        <AddUserDialog
-          onSave={handleAddUser}
-          onCancel={() => setAddUserOpen(false)}
-          isPending={isAddPending}
-        />
-      )}
-    </Card>
+        {/* Add User Dialog */}
+        {addUserOpen && (
+          <AddUserDialog
+            onSave={handleAddUser}
+            onCancel={() => setAddUserOpen(false)}
+            isPending={isAddPending}
+          />
+        )}
+      </Card>
+      <div className="flex justify-center my-6 items-center gap-2">
+        <Button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </Button>
+        <span className="px-2">
+          Page {currentPage} of {users?.metaData.totalPages}
+        </span>
+        <Button
+          onClick={() =>
+            setCurrentPage((prev) =>
+              prev < (users?.metaData?.totalPages ?? 1) ? prev + 1 : prev
+            )
+          }
+          disabled={currentPage === users?.metaData.totalPages}
+        >
+          Next
+        </Button>
+      </div>
+    </>
   );
 }
 
