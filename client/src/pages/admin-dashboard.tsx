@@ -191,6 +191,8 @@ export default function UsersTable() {
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
   const [editUser, setEditUser] = useState<User | null>(null);
   const [addUserOpen, setAddUserOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
   const { logout } = useAuth();
 
@@ -198,7 +200,11 @@ export default function UsersTable() {
     logout();
   };
 
-  const { data: users = [], isLoading, error } = useGetAllUsers();
+  const {
+    data: users = [],
+    isLoading,
+    error,
+  } = useGetAllUsers(currentPage, pageSize);
   const { mutate: updateUserFn, isPending: isUpdatePending } = useEditUser();
   const { mutate: deleteUserFn, isPending: isDeletePending } = useDeleteUser();
   const { mutate: addUserFn, isPending: isAddPending } = useCreateNewUser();

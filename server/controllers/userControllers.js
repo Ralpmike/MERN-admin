@@ -3,8 +3,25 @@ const User = require("../models/user.model");
 // Get all users
 const getAllUsers = async (req, res) => {
   try {
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const start = (page - 1) * limit;
+    const end = page * limit;
+
     const users = await User.find();
-    res.status(200).json(users);
+
+    const paginatedUsers = users.slice(start, end);
+
+    res.status(200).json({
+      users: paginatedUsers,
+      metaData: {
+        page,
+        limit,
+        total: users.length,
+        totalPages: Math.ceil(users.length / limit),
+      },
+      message: "Users fetched successfully",
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
